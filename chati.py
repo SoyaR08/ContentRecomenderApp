@@ -1,10 +1,12 @@
-from models import build_als_model, build_content_scores, build_hybrid
-from modules import recommend_new_user, ask_user_preferences
-from preprocessing import build_movies_df
-from pyspark.sql import functions as F
 from pyspark.sql import SparkSession
-from data import load_ratings_df
 import os
+from pyspark.sql import functions as F
+
+from modules import recommend_new_user, ask_user_preferences
+from preprocessing import build_movies_df, build_hybrid
+from data import load_ratings_df
+
+from models import build_als_model, build_content_scores
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -75,11 +77,11 @@ precision_per_user = eval_df.groupBy("user_id").agg(
     (F.sum("relevant") / F.lit(K)).alias("precision_at_k")
 )
 
-precision_at_k = precision_per_user.agg(
-    F.avg("precision_at_k").alias("precision@K")
-)
+# precision_at_k = precision_per_user.agg(
+#     F.avg("precision_at_k").alias("precision@K")
+# )
 
-precision_at_k.show()
+# precision_at_k.show()
 
 # ----------------------------
 # CONTENT MODEL
@@ -103,9 +105,9 @@ precision_hybrid = hybrid_eval.groupBy("user_id").agg(
     (F.sum("relevant") / F.lit(K)).alias("precision_at_k")
 )
 
-precision_hybrid.agg(
-    F.avg("precision_at_k").alias("mean_precision_at_k")
-).show()
+# precision_hybrid.agg(
+#     F.avg("precision_at_k").alias("mean_precision_at_k")
+# ).show()
 
 # ----------------------------
 # OUTPUT
